@@ -1,64 +1,92 @@
 /* Общие стили */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  padding: 10px;
-  
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f1f1f1;
+  color: #333;
+  line-height: 1.6;
 }
 
 .app-container {
-  font-family: 'Arial', sans-serif;
-  padding: 20px;
-  max-width: 800px; /* Устанавливаем максимальную ширину 800px */
-  margin: 0 auto; /* Центрируем контейнер по горизонтали */
-  background-color: #f9f9f9; /* Цвет фона для контейнера */
-  border-radius: 8px; /* Округление углов */
+  font-family: 'Poppins', sans-serif;
+  padding: 30px;
+  max-width: 800px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #4CAF50;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
-  background-color: rgba(0, 0, 0, 0.10);
-  border-radius: 20px;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 h2, h3 {
-  margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .result, .weeks-list, .work-list {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .input-container {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 label {
   font-weight: bold;
-  display: block;
+  font-size: 1.1rem;
+  color: #333;
   margin-bottom: 5px;
+  display: block;
 }
 
 input[type="date"],
 input[type="time"],
 input[type="number"] {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="number"]:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
 }
 
 button {
-  padding: 10px 15px;
-  margin-top: 10px;
+  padding: 12px 20px;
+  margin-top: 15px;
   background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  width: 100%; /* Сделаем кнопку на всю ширину */
-  box-sizing: border-box; /* Чтобы кнопка не выходила за пределы контейнера */
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 button:hover {
@@ -74,93 +102,17 @@ button:hover {
   margin-left: 10px;
 }
 
-.delete-button {
-  background-color: #f44336;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.delete-button:hover {
-  background-color: #e53935;
-}
-
-.normal-hours, .overtime-hours {
-  font-weight: bold;
-}
-
-.overtime {
-  color: red;
-}
-
-/* Стили для списка */
-.work-item {
-  background-color: #f9f9f9;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-}
-
-.work-item div {
-  margin-top: 5px;
-}
-
-.work-item button {
-  margin-top: 10px;
-  background-color: #f44336;
-  color: white;
-  border-radius: 4px;
-}
-
-.weeks-list ul, .work-list ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.weeks-list li, .work-item {
-  background-color: #f1f1f1;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-}
-
-.overtime-hours {
-  color: red;
-  font-weight: bold;
-}
-
-/* Стили для итогов */
-.result {
-  border-top: 2px solid #ccc;
-  padding-top: 20px;
-  margin-top: 20px;
-}
-
-.result h2 {
-  
-  margin: 5px 0;
-}
-
-.result h3 {
-  font-weight: bold;
-}
-
-.result strong {
-  font-size: 1.2em;
-}
-
-/* Стили для кнопки удаления всей истории */
 .clear-history-button {
-  padding: 12px 18px;
-  margin-top: 20px;
   background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 12px 18px;
   width: 100%;
+  border-radius: 8px;
+  margin-top: 20px;
+  color: white;
+  cursor: pointer;
   box-sizing: border-box;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
 }
 
 .clear-history-button:hover {
@@ -171,11 +123,138 @@ button:hover {
   background-color: #d32f2f;
 }
 
-
-.totals {
-  background-color: rgba(0, 0, 0, 0.16);
+.delete-button {
+  background-color: #f44336;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
+
+.delete-button:hover {
+  background-color: #e53935;
+}
+
+.normal-hours, .overtime-hours {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.overtime {
+  color: #ff5722;
+}
+
+.work-item {
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+.work-item:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.work-item div {
+  margin-top: 10px;
+}
+
+.work-item button {
+  background-color: #f44336;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.work-item button:hover {
+  background-color: #e53935;
+}
+
+.weeks-list ul, .work-list ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.weeks-list li, .work-item {
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.overtime-hours {
+  color: #ff5722;
+  font-weight: bold;
+}
+
+/* Стили для итогов */
+.result {
+  border-top: 2px solid #ddd;
+  padding-top: 30px;
+  margin-top: 40px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.result h2 {
+  margin: 10px 0;
+}
+
+.result h3 {
+  font-weight: 600;
+}
+
+.result strong {
+  font-size: 1.3rem;
+}
+
+/* Стили для итогов */
+.totals {
+  background-color: rgba(0, 0, 0, 0.04);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .totals p {
-  font-size: 24px;
-  border: 2px solid black;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Стили для кнопки PDF */
+.pdf-button {
+  background-color: #2196F3;
+  padding: 12px 18px;
+  margin-top: 20px;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+.pdf-button:hover {
+  background-color: #1976D2;
+}
+
+.pdf-button:active {
+  background-color: #1565C0;
 }

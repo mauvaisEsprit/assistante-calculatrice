@@ -221,7 +221,7 @@ doc.save("rapport_heures_travail.pdf");
 
   return (
     <div className="App">
-      <h1>Suivi des heures de travail</h1>
+      <h1>Nounoulatrice</h1>
       <div className="form">
       <label>Date:</label>
        <input
@@ -308,7 +308,9 @@ doc.save("rapport_heures_travail.pdf");
   ).toFixed(2)} €</p>
 </div>
 
-        <button onClick={generatePDF}>
+        <button 
+        className='pdf-button'
+        onClick={generatePDF}>
           Générer le PDF
         </button>
       </div>
