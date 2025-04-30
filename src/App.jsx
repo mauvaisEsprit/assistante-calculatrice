@@ -275,6 +275,12 @@ doc.save("rapport_heures_travail.pdf");
         <button onClick={handleAddWorkDay}>
          Ajouter une journée de travail:
         </button>
+
+        <button
+        className='clear-history-button' 
+        onClick={handleClearAll}>
+         Effacer l'Historique
+        </button>
       </div>
       <div className="workHistory">
         <h2>Historique des heures:</h2>
