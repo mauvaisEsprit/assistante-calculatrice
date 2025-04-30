@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { jsPDF } from 'jspdf';
 
+
+
 function App() {
   const [workData, setWorkData] = useState(() => {
     const saved = localStorage.getItem('workData');
@@ -12,16 +14,32 @@ function App() {
   const [endTime, setEndTime] = useState('');
   const [hourlyRate, setHourlyRate] = useState(() => {
     const savedRate = localStorage.getItem('hourlyRate');
-    return savedRate ? savedRate : '';
-    
+    return savedRate ? parseFloat(savedRate) : 3.12;  // Преобразуем в число
   });
   const [indemnityRate, setIndemnityRate] = useState(() => {
     const savedIndemnity = localStorage.getItem('indemnityRate');
-    return savedIndemnity ? savedIndemnity : 0; // по умолчанию 4 €
+    return savedIndemnity ? parseFloat(savedIndemnity) : 3.75;  // Преобразуем в число
   });
+ 
+  const [weekLimit, setWeekLimit] = useState(45);
 
-  const overtimeLimitHours = 45;
   const overtimeMultiplier = 1.25;
+
+
+
+  const handleIndemnityRateChange = (e) => {
+    let value = e.target.value;
+  
+    // Заменяем запятую на точку
+    value = value.replace(',', '.');
+  
+    // Проверяем, что введено корректное число
+    if (value === '' || !isNaN(value)) {
+      setIndemnityRate(value); // Сохраняем введенное значение как строку
+    }
+  };
+  
+
 
   useEffect(() => {
     localStorage.setItem('workData', JSON.stringify(workData));
@@ -38,12 +56,37 @@ function App() {
   const handleDateChange = (e) => setSelectedDate(e.target.value);
   const handleStartTimeChange = (e) => setStartTime(e.target.value);
   const handleEndTimeChange = (e) => setEndTime(e.target.value);
-  const handleRateChange = (e) => setHourlyRate(e.target.value);
+  const handleRateChange = (e) => {
+    let value = e.target.value;
+  
+    // Заменяем запятую на точку
+    value = value.replace(',', '.');
+  
+    // Проверяем, что введено корректное число
+    if (value === '' || !isNaN(value)) {
+      setHourlyRate(value); // Сохраняем введенное значение как строку
+    }
+  };
+  
+  const handleLanguageChange = (e) => setLanguage(e.target.value);
+  const handleWeekLimitChange = (e) => setWeekLimit(parseFloat(e.target.value)); // Преобразуем в число
+
+  const roundToQuarterHour = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+    const roundedMinutes = Math.round(totalMinutes / 15) * 15;
+    const roundedHours = Math.floor(roundedMinutes / 60);
+    const roundedMins = roundedMinutes % 60;
+    return `${String(roundedHours).padStart(2, '0')}:${String(roundedMins).padStart(2, '0')}`;
+  };
 
   const handleAddWorkDay = () => {
     if (selectedDate && startTime && endTime) {
-      const startDateTime = new Date(`${selectedDate}T${startTime}`);
-      const endDateTime = new Date(`${selectedDate}T${endTime}`);
+      const roundedStartTime = roundToQuarterHour(startTime);
+      const roundedEndTime = roundToQuarterHour(endTime);
+
+      const startDateTime = new Date(`${selectedDate}T${roundedStartTime}`);
+      const endDateTime = new Date(`${selectedDate}T${roundedEndTime}`);
 
       if (endDateTime <= startDateTime) {
         alert("L'heure de fin ne peut pas être avant l'heure de début !");
@@ -52,13 +95,12 @@ function App() {
 
       const diffInMilliseconds = endDateTime - startDateTime;
       let workedHours = diffInMilliseconds / (1000 * 60 * 60);
-
       workedHours = Math.round(workedHours / 0.25) * 0.25;
 
-      const newWorkData = [...workData, { date: selectedDate, startTime, endTime, workedHours }];
+      const newWorkData = [...workData, { date: selectedDate, startTime: roundedStartTime, endTime: roundedEndTime, workedHours }];
       setWorkData(newWorkData);
     } else {
-      alert('Veuillez remplir tous les champs.');
+      alert( 'Veuillez remplir tous les champs.');
     }
   };
 
@@ -68,7 +110,7 @@ function App() {
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir tout effacer ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir tout effacer ?' )) {
       setWorkData([]);
       setSelectedDate('');
       setStartTime('');
@@ -79,55 +121,61 @@ function App() {
   };
 
   const generatePDF = () => {
-    const sortedWorkData = workData.sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      return dateA - dateB; // сортировка по возрастанию
-    });
-  
+    const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
     const doc = new jsPDF();
-    
+  
     doc.setFontSize(16);
-    doc.text("Heures de travail et salaire: ", 20, 20);
+    doc.text("Heures de travail et salaire:" , 20, 20);
   
     let yPosition = 30;
-    
-    // Перебираем отсортированные данные
+  
     sortedWorkData.forEach(day => {
-      doc.text(`${day.date} - ${day.startTime} à ${day.endTime}: ${day.workedHours.toFixed(2)} h`, 20, yPosition);
+      const timeFormat = `${day.startTime} à ${day.endTime}`;
+      const decimalFormat = `${day.workedHours.toFixed(2)} h`;
+  
+      const hours = Math.floor(day.workedHours);
+      const minutes = Math.round((day.workedHours - hours) * 60);
+      const workedTimeFormatted = `${hours}h${minutes < 10 ? '0' + minutes : minutes}m/${day.workedHours.toFixed(2)} h`;
+  
+      doc.text(`${day.date} - ${timeFormat} ${workedTimeFormatted}`, 20, yPosition);
       yPosition += 10;
     });
   
     const { normalHours, overtimeHours } = calculateTotals();
-    const normalPay = normalHours * (parseFloat(hourlyRate) || 0);
-    const overtimePay = overtimeHours * (parseFloat(hourlyRate) || 0) * overtimeMultiplier;
+    const normalPay = normalHours * (hourlyRate || 0);
+    const overtimePay = overtimeHours * (hourlyRate || 0) * overtimeMultiplier;
     const totalPay = normalPay + overtimePay;
   
-    const heuresTotales = normalHours + overtimeHours;
-    
-    // Получаем уникальные даты
     const uniqueDates = new Set(sortedWorkData.map(day => day.date));
     const totalIndemnity = uniqueDates.size * (isNaN(indemnityRate) ? 0 : indemnityRate);
     const grandTotalPay = totalPay + totalIndemnity;
   
-    yPosition += 10;
-    doc.text(`Heures normales : ${normalHours.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Heures supplémentaires : ${overtimeHours.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Heures totales : ${heuresTotales.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Paiement heures normales : ${normalPay.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Paiement heures supplémentaires : ${overtimePay.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Indemnités d'entretien : ${totalIndemnity.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Total général : ${grandTotalPay.toFixed(2)} €`, 20, yPosition);
+    const heuresTotales = normalHours + overtimeHours;
   
-    doc.save("rapport_heures_travail.pdf");
+    yPosition += 10;
+doc.text('Heures normales : ' + normalHours.toFixed(2) + ' h', 20, yPosition);
+yPosition += 10;
+doc.text('Heures supplémentaires : ' + overtimeHours.toFixed(2) + ' h', 20, yPosition);
+yPosition += 10;
+doc.text('Heures totales : ' + heuresTotales.toFixed(2) + ' h', 20, yPosition);
+yPosition += 10;
+doc.text('Paiement heures normales : ' + normalPay.toFixed(2) + ' €', 20, yPosition);
+yPosition += 10;
+doc.text('Paiement heures supplémentaires : ' + overtimePay.toFixed(2) + ' €', 20, yPosition);
+yPosition += 10;
+doc.text('Indemnités d\'entretien : ' + totalIndemnity.toFixed(2) + ' €', 20, yPosition);
+yPosition += 10;
+doc.text('Total général : ' + grandTotalPay.toFixed(2) + ' €', 20, yPosition);
+
+const generatedDate = new Date().toLocaleDateString();
+yPosition += 10;
+doc.text('Date de génération du PDF : ' + generatedDate, 20, yPosition);
+
+doc.save("rapport_heures_travail.pdf");
+
   };
   
+
   const groupByWeeks = () => {
     const weeks = {};
 
@@ -147,170 +195,134 @@ function App() {
     return weeks;
   };
 
-  const weeksData = groupByWeeks();
-
   const calculateTotals = () => {
     let normalHours = 0;
     let overtimeHours = 0;
 
-    Object.values(weeksData).forEach(week => {
-      if (week.hours <= overtimeLimitHours) {
+    Object.values(groupByWeeks()).forEach(week => {
+      if (week.hours <= weekLimit) {
         normalHours += week.hours;
       } else {
-        normalHours += overtimeLimitHours;
-        overtimeHours += (week.hours - overtimeLimitHours);
+        normalHours += weekLimit;
+        overtimeHours += (week.hours - weekLimit);
       }
     });
 
     return { normalHours, overtimeHours };
   };
 
-  const { normalHours, overtimeHours } = calculateTotals();
-
-  const normalPay = normalHours * parseFloat(hourlyRate || 0);
-  const overtimePay = overtimeHours * parseFloat(hourlyRate || 0) * overtimeMultiplier;
-  const totalPay = normalPay + overtimePay;
-
-  
-  const totalIndemnity = workData.length * parseFloat(indemnityRate || 0);
-
-const heuresTotales = normalHours + overtimeHours;
-const grandTotalPay = totalPay + totalIndemnity;
+  const getWeekNumber = (date) => {
+    const tempDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    tempDate.setDate(tempDate.getDate() - tempDate.getDay() + 1);  // Понедельник недели
+    const firstDayOfYear = new Date(tempDate.getFullYear(), 0, 1);
+    const daysInBetween = Math.floor((tempDate - firstDayOfYear) / (24 * 60 * 60 * 1000));
+    return Math.ceil((daysInBetween + 1) / 7);  // Вычисление номера недели
+  };
 
   return (
-    <div className="app-container">
-      <h1>Heures de travail et salaire</h1>
-
-      <div className="form-container">
-        <div className="input-container">
-          <label>Date :</label>
-          <input type="date" value={selectedDate} onChange={handleDateChange} />
-        </div>
-        <div className="input-container">
-          <label>Heure de début :</label>
-          <input type="time" value={startTime} onChange={handleStartTimeChange} />
-        </div>
-        <div className="input-container">
-          <label>Heure de fin :</label>
-          <input type="time" value={endTime} onChange={handleEndTimeChange} />
-        </div>
-        <div className="input-container">
-          <label>Tarif horaire (€) :</label>
-          <input type="number" step="any" value={hourlyRate} onChange={handleRateChange} />
-        </div>
-        <div className="input-container">
-          <label>Indemnité d'entretien par jour (€) :</label>
+    <div className="App">
+      <h1>Suivi des heures de travail</h1>
+      <div className="form">
+      <label>Date:</label>
+       <input
+          type="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+        />
+         <label>Heure de début:</label>
+         <input
+          type="time"
+          value={startTime}
+          onChange={handleStartTimeChange}
+        />
+         <label>Heure de fin:</label>
           <input
-             type="text"
-             value={indemnityRate}
-             onChange={(e) => {
-              // Меняем запятую на точку
-          const value = e.target.value.replace(',', '.');
-           setIndemnityRate(value);
-    }}
-    onBlur={() => {
-      setIndemnityRate((prev) => {
-        const number = parseFloat(prev);
-        if (isNaN(number)) {
-          alert("Merci d'entrer un nombre valide pour l'indemnité !");
-          return 0;
-        }
-        return number;
-      });
-    }}
-    placeholder="Exemple: 3,20 ou 3.20"
-  />
-
+            type="time"
+            value={endTime}
+            onChange={handleEndTimeChange}
+          />
+        <label>
+       Taux horaire:
+        <input
+          type="number"
+          step="0.01"
+          value={hourlyRate}
+          onChange={handleRateChange}
+         
+        />
+        </label>
+         <label>
+         Indemnité d'entretien:
+        <input
+          type="number"
+          step="0.01"
+          value={indemnityRate}
+          onChange={handleIndemnityRateChange}
+          
+          
+        />
+        </label>
+      <div className="weekLimit">
+        <label>
+         Limite hebdomadaire:
+          <input
+            type="number"
+            value={weekLimit}
+            onChange={handleWeekLimitChange}
+          />
+        </label>
       </div>
-        <button className="add-button" onClick={handleAddWorkDay}>Ajouter la journée</button>
-        <button className="clear-button" onClick={handleClearAll}>Tout effacer</button>
+        <button onClick={handleAddWorkDay}>
+         Ajouter une journée de travail:
+        </button>
       </div>
-
-      <div className="result">
-  <h2>Heures normales : {normalHours.toFixed(2)} h</h2>
-  <h2>Heures supplémentaires : {overtimeHours.toFixed(2)} h</h2>
-  <h2><strong>Heures totales : {heuresTotales.toFixed(2)} h</strong></h2>
-  <h2>Paiement heures normales : {normalPay.toFixed(2)} €</h2>
-  <h2>Paiement heures supplémentaires : {overtimePay.toFixed(2)} €</h2>
-  <h2>Indemnités d'entretien : {totalIndemnity.toFixed(2)} €</h2>
-  <h2><strong>Total général : {grandTotalPay.toFixed(2)} €</strong></h2>
-</div>
-
-      <div className="weeks-list">
-        <h3>Heures par semaine :</h3>
+      <div className="workHistory">
+        <h2>Historique des heures:</h2>
         <ul>
-          {Object.entries(weeksData).map(([week, data], index) => {
-            const overtime = data.hours > overtimeLimitHours ? data.hours - overtimeLimitHours : 0;
-            return (
-              <li key={index} className={overtime > 0 ? 'overtime' : ''}>
-                {week} : 
-                <span className="normal-hours">
-                  {Math.min(data.hours, overtimeLimitHours).toFixed(2)} h normales
-                </span>
-                {overtime > 0 && (
-                  <span className="overtime-hours">
-                    {' + ' + overtime.toFixed(2)} h supplémentaires
-                  </span>
-                )}
-              </li>
-            );
-          })}
+          {workData.map((day, index) => (
+            <li key={index}>
+              {`${day.date} - ${day.startTime} à ${day.endTime} - ${day.workedHours.toFixed(2)} h`}
+              <button onClick={() => handleDeleteWorkDay(index)}>
+                Supprimer
+              </button>
+            </li>
+          ))}
         </ul>
-      </div>
-
-      <div className="work-list">
-  <h3>Journées travaillées :</h3>
-  <ul>
-    {workData
-      .slice() // сначала копируем массив, чтобы не мутировать оригинал
-      .sort((a, b) => new Date(a.date) - new Date(b.date)) // сортируем по дате
-      .map((day, index) => {
-        // дальше твой текущий код:
-        const basePay = day.workedHours * parseFloat(hourlyRate || 0);
-        let overtimePayDay = 0;
-
-        const date = new Date(day.date);
-        const weekKey = `${date.getFullYear()}-S${getWeekNumber(date)}`;
-        const weekHoursBefore = weeksData[weekKey].days
-          .slice(0, weeksData[weekKey].days.findIndex(d => d === day))
-          .reduce((sum, d) => sum + d.workedHours, 0);
-
-        const availableNormalHours = Math.max(0, overtimeLimitHours - weekHoursBefore);
-        const normalHoursThisDay = Math.min(availableNormalHours, day.workedHours);
-        const overtimeHoursThisDay = day.workedHours - normalHoursThisDay;
-
-        const normalPayDay = normalHoursThisDay * parseFloat(hourlyRate || 0);
-        overtimePayDay = overtimeHoursThisDay * parseFloat(hourlyRate || 0) * overtimeMultiplier;
-
-        
-
-        return (
-          <li key={index} className="work-item">
-            {day.date} : {day.startTime} - {day.endTime} ({day.workedHours.toFixed(2)} h)
-            <div>
-              <div>Gains normaux : {normalPayDay.toFixed(2)} €</div>
-              {overtimeHoursThisDay > 0 && (
-                <div>Gains supplémentaires : {overtimePayDay.toFixed(2)} €</div>
-              )}
-            </div>
-            <button className="delete-button" onClick={() => handleDeleteWorkDay(index)}>Supprimer</button>
-          </li>
-        );
-      })}
-  </ul>
+        <div className="totals">
+  <h2>Total heures:</h2>
+  <p>normale: {calculateTotals().normalHours.toFixed(2)} h</p>
+  <p>supplémentaires: {calculateTotals().overtimeHours.toFixed(2)} h</p>
+  <p>Paye normale: {(calculateTotals().normalHours * hourlyRate).toFixed(2)} €</p>
+  <p>Paye supp: {(calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier).toFixed(2)} €</p>
+  <p>Idemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
+  <p>Paye total: {(
+    calculateTotals().normalHours * hourlyRate +
+    calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier +
+    new Set(workData.map(d => d.date)).size * indemnityRate
+  ).toFixed(2)} €</p>
 </div>
 
-      <button className="generate-pdf-button" onClick={generatePDF}>Générer le PDF</button>
+        <button onClick={generatePDF}>
+          Générer le PDF
+        </button>
+      </div>
+      
     </div>
   );
 }
 
-function getWeekNumber(date) {
-  const tempDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  tempDate.setHours(0, 0, 0, 0);
-  tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
-  const week1 = new Date(tempDate.getFullYear(), 0, 4);
-  return 1 + Math.round(((tempDate - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-}
-
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

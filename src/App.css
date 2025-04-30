@@ -1,11 +1,11 @@
-/* App.css */
-
 /* Общие стили */
 .app-container {
   font-family: 'Arial', sans-serif;
   padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 800px; /* Устанавливаем максимальную ширину 800px */
+  margin: 0 auto; /* Центрируем контейнер по горизонтали */
+  background-color: #f9f9f9; /* Цвет фона для контейнера */
+  border-radius: 8px; /* Округление углов */
 }
 
 h1 {
@@ -49,6 +49,8 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 100%; /* Сделаем кнопку на всю ширину */
+  box-sizing: border-box; /* Чтобы кнопка не выходила за пределы контейнера */
 }
 
 button:hover {
@@ -137,4 +139,25 @@ button:hover {
 
 .result strong {
   font-size: 1.2em;
+}
+
+/* Стили для кнопки удаления всей истории */
+.clear-history-button {
+  padding: 12px 18px;
+  margin-top: 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clear-history-button:hover {
+  background-color: #e53935;
+}
+
+.clear-history-button:active {
+  background-color: #d32f2f;
 }

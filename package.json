@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/mauvaisEsprit/assistante-calculatrice",
+  "homepage": "https://github.com/mauvaisEsprit/assistante-calculatrice.git",
   "scripts": {
     "build": "vite build",
     "predeploy": "npm run build",
@@ -15,9 +15,12 @@
   "dependencies": {
     "axios": "^1.9.0",
     "framer-motion": "^12.9.2",
+    "i18next": "^25.0.2",
+    "i18next-browser-languagedetector": "^8.0.5",
     "jspdf": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^15.5.1",
     "tailwindcss": "^4.1.4",
     "uuid": "^11.1.0"
   },
