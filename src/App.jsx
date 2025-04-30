@@ -294,7 +294,7 @@ doc.save("rapport_heures_travail.pdf");
   <p>supplémentaires: {calculateTotals().overtimeHours.toFixed(2)} h</p>
   <p>Paye normale: {(calculateTotals().normalHours * hourlyRate).toFixed(2)} €</p>
   <p>Paye supp: {(calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier).toFixed(2)} €</p>
-  <p>Idemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
+  <p>Indemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
   <p>Paye total: {(
     calculateTotals().normalHours * hourlyRate +
     calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier +
