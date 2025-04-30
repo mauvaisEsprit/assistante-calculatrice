@@ -138,6 +138,7 @@ button:hover {
 }
 
 .result h2 {
+  
   margin: 5px 0;
 }
 
@@ -168,4 +169,13 @@ button:hover {
 
 .clear-history-button:active {
   background-color: #d32f2f;
+}
+
+
+.totals {
+  background-color: rgba(0, 0, 0, 0.16);
+}
+.totals p {
+  font-size: 24px;
+  border: 2px solid black;
 }
