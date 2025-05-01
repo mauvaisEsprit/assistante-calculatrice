@@ -142,7 +142,7 @@ function App() {
       setWorkData(newWorkData);
       showNotification("Journée ajoutée avec succès !");
     } else {
-      showNotification("Veuillez remplir tous les champs.", true);
+      showNotification("Veuillez remplir tous les champs.", "error");
     }
   };
   
