@@ -119,7 +119,7 @@ function App() {
       const endDateTime = new Date(`${selectedDate}T${roundedEndTime}`);
   
       if (endDateTime <= startDateTime) {
-        showNotification("L'heure de fin ne peut pas être avant l'heure de début !", true);
+        showNotification("L'heure de fin ne peut pas être avant l'heure de début !", "error");
         return;
       }
   
