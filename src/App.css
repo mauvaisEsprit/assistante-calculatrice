@@ -36,30 +36,46 @@ h1 {
 
 h2, h3 {
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-left: 10px;
   color: #333;
+}
+
+.workHistory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+li {
+  font-size: 18px;
+  
 }
 
 .result, .weeks-list, .work-list {
   margin-top: 30px;
 }
 
-.input-container {
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 15px;
+  width: 100%;
 }
 
 label {
   font-weight: bold;
   font-size: 1.1rem;
   color: #333;
-  margin-bottom: 5px;
+  margin-top: 5px;
+  margin-left: 10px;
   display: block;
 }
 
 input[type="date"],
 input[type="time"],
 input[type="number"] {
-  width: 100%;
+  width: 50%;
   padding: 12px;
   margin-top: 8px;
   border: 2px solid #ccc;
@@ -95,10 +111,18 @@ button:hover {
 
 .add-button {
   background-color: #4CAF50;
+  width: 50%;
+  margin: 20px auto 0;
+  display: block;
+  text-align: center;
 }
 
 .butt-supp {
   background-color: #f44336;
+  width: 100%;
+  margin: 20px auto 0;
+  display: block;
+  text-align: center;
 }
 .butt-supp:hover {
   background-color: #cf3431;
@@ -109,7 +133,10 @@ button:hover {
   padding: 12px 18px;
   width: 100%;
   border-radius: 8px;
-  margin-top: 20px;
+  width: 50%;
+  margin: 20px auto 0;
+  display: block;
+  text-align: center;
   color: white;
   cursor: pointer;
   box-sizing: border-box;
@@ -166,18 +193,9 @@ button:hover {
   background-color: #e53935;
 }
 
-.weeks-list ul, .work-list ul {
-  list-style-type: none;
-  padding-left: 0;
-}
 
-.weeks-list li, .work-item {
-  background-color: #ffffff;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
+
+
 
 .overtime-hours {
   color: #ff5722;
@@ -229,8 +247,10 @@ button:hover {
 .pdf-button {
   background-color: #2196F3;
   padding: 12px 18px;
-  margin-top: 20px;
-  width: 100%;
+  width: 50%;
+  margin: 20px auto 0;
+  display: block;
+  text-align: center;
   border-radius: 8px;
   font-size: 1.1rem;
   color: white;

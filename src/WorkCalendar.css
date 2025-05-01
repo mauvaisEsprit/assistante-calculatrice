@@ -4,7 +4,7 @@
     padding: 30px;
     font-family: 'Segoe UI', sans-serif;
     background-color: #ffffff;
-    border-radius: 15px;
+    border-radius: 25px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
   
@@ -19,7 +19,7 @@
     width: 100%;
     font-size: 20px;
     border: none;
-    border-radius: 10px;
+    border-radius: 17px;
     overflow: hidden;
   }
   
@@ -58,10 +58,19 @@
     font-weight: 600;
     background-color: #fafafa;
   }
+
+/* Стиль для выходных дней */
+.weekend-day {
+    color: red !important;
+  }
   
+
+  
+
   .react-calendar__tile {
     padding: 20px 0;
-    border-radius: 8px;
+    color: #333;
+    border-radius: 50%;
     transition: all 0.2s ease-in-out;
   }
   
@@ -69,22 +78,25 @@
     background: #ffeb3b;
     color: #000;
     font-weight: bold;
-    border-radius: 8px;
+    border-radius: 50%;
   }
   
   .react-calendar__tile--active {
     background: #42a5f5 !important;
     color: #fff !important;
     font-weight: bold;
-    border-radius: 8px;
+    border-radius: 50%;
   }
   
-  .work-day {
-    background-color: #66bb6a !important;
-    color: white !important;
-    border-radius: 8px;
-    font-weight: bold;
+/* Стиль для рабочих дней */
+.work-day {
+    background-color: #4caf50; /* Зелёный фон для рабочих дней */
+    color: white;
+    border-radius: 50%;
+    pointer-events: auto; /* Рабочие дни кликабельны */
   }
+
+
   
   .work-info {
     margin-top: 30px;

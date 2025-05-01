@@ -163,109 +163,108 @@ const showNotification = (message, isError = false) => {
       localStorage.clear();
     }
   };
-  const generatePDF = () => {
-    // Сортируем данные по дате
-    const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
-  
-    const doc = new jsPDF();
-  
-    // Заголовок
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(0, 51, 102); // Цвет заголовка
-    doc.text("Rapport des heures de travail et salaire", 20, 20);
-  
-    // Добавляем логотип (предположим, что логотип - это изображение в формате base64)
-    // doc.addImage('path/to/logo.png', 'PNG', 160, 10, 40, 40);
-  
-    let yPosition = 40;
-  
-    // Вставляем дату отчёта
-    const generatedDate = new Date().toLocaleDateString();
-    doc.setFontSize(12);
-    doc.setTextColor(100);
-    doc.text(`Date de génération : ${generatedDate}`, 20, yPosition);
-    yPosition += 10;
-  
-    // Записываем данные по каждому дню в виде таблицы
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0); // Основной цвет текста
-  
-    // Создаем таблицу
-    const tableHeader = ['Date', 'Heure de début', 'Heure de fin', 'Durée', 'Total (h)'];
-    const tableData = sortedWorkData.map(day => [
-      day.date,
+ const generatePDF = () => {
+  const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const doc = new jsPDF();
+
+  // Заголовок
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(0, 51, 102);
+  doc.text("Rapport des heures de travail et salaire", 20, 20);
+
+  let yPosition = 40;
+
+  // Дата генерации
+  const generatedDate = new Date().toLocaleDateString('fr-FR');
+  doc.setFontSize(12);
+  doc.setTextColor(100);
+  doc.text(`Date de génération : ${generatedDate}`, 20, yPosition);
+  yPosition += 10;
+
+  // Таблица
+  const tableHeader = ['Date', 'Début', 'Fin', 'Durée (hh:mm)', 'Durée (déc.)'];
+  const columnWidths = [30, 30, 30, 50, 40];
+  const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+
+  // Заголовок таблицы
+  doc.setFillColor(0, 102, 204);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.rect(20, yPosition, tableWidth, 10, 'F');
+  tableHeader.forEach((header, i) => {
+    doc.text(header, 20 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0) + 2, yPosition + 7);
+  });
+  yPosition += 10;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+
+  // Данные таблицы
+  sortedWorkData.forEach(day => {
+    const [h, m] = (day.workedHours * 60).toFixed(0).split('.').map(Number);
+    const hours = Math.floor(day.workedHours);
+    const minutes = Math.round((day.workedHours - hours) * 60);
+    const durationHHMM = `${hours}h${minutes.toString().padStart(2, '0')}`;
+
+    const formattedDate = new Date(day.date).toLocaleDateString('fr-FR');
+
+    const row = [
+      formattedDate,
       day.startTime,
       day.endTime,
-      `${day.startTime} à ${day.endTime}`,
+      durationHHMM,
       day.workedHours.toFixed(2)
-    ]);
-  
-    const tableWidth = 180;
-    const columnWidths = [30, 40, 40, 40, 30]; // Ширина колонок
-  
-    // Добавляем таблицу заголовков
-    doc.setFillColor(0, 102, 204); // Цвет фона заголовков
-    doc.setTextColor(255, 255, 255); // Цвет текста заголовков
-    doc.setFontSize(12);
-    doc.rect(20, yPosition, tableWidth, 10, 'F'); // Рисуем фон для заголовков
-    tableHeader.forEach((header, index) => {
-      doc.text(header, 20 + columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 2, yPosition + 7);
+    ];
+
+    row.forEach((cell, i) => {
+      const x = 20 + columnWidths.slice(0, i).reduce((a, b) => a + b, 0) + 2;
+      doc.text(String(cell), x, yPosition + 7);
     });
+
     yPosition += 10;
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+  });
+
+  // Разделитель
+  doc.line(20, yPosition, 200, yPosition);
+  yPosition += 10;
+
+  // Подсчёт
+  const { normalHours, overtimeHours } = calculateTotals();
+  const normalPay = normalHours * parseFloat(hourlyRate || 0);
+  const overtimePay = overtimeHours * (hourlyRate || 0) * overtimeMultiplier;
+  const totalPay = normalPay + overtimePay;
+
+  const uniqueDates = new Set(sortedWorkData.map(day => day.date));
+  const totalIndemnity = uniqueDates.size * (isNaN(indemnityRate) ? 0 : indemnityRate);
+  const grandTotalPay = totalPay + totalIndemnity;
+  const heuresTotales = normalHours + overtimeHours;
+
+  // Итог
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 102, 204);
+  doc.text("Résumé des heures et paiement", 20, yPosition);
+  yPosition += 10;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Heures normales : ${normalHours.toFixed(2)} h`, 20, yPosition); yPosition += 10;
+  doc.text(`Heures supplémentaires : ${overtimeHours.toFixed(2)} h`, 20, yPosition); yPosition += 10;
+  doc.text(`Heures totales : ${heuresTotales.toFixed(2)} h`, 20, yPosition); yPosition += 10;
+  doc.text(`Paiement heures normales : ${normalPay.toFixed(2)} €`, 20, yPosition); yPosition += 10;
+  doc.text(`Paiement heures supplémentaires : ${overtimePay.toFixed(2)} €`, 20, yPosition); yPosition += 10;
+  doc.text(`Indemnités d'entretien : ${totalIndemnity.toFixed(2)} €`, 20, yPosition); yPosition += 10;
+  doc.text(`Total général : ${grandTotalPay.toFixed(2)} €`, 20, yPosition);
+
+  // Сохранение
+  doc.save("rapport_heures_travail.pdf");
+};
+
   
-    // Добавляем данные таблицы
-    doc.setTextColor(0, 0, 0); // Цвет текста для данных
-    tableData.forEach(row => {
-      row.forEach((cell, index) => {
-        doc.text(cell, 20 + columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 2, yPosition + 7);
-      });
-      yPosition += 10;
-    });
-  
-    // Добавляем разделитель после таблицы
-    doc.setDrawColor(0, 0, 0); // Цвет для линии
-    doc.line(20, yPosition, 200, yPosition); // Линия
-  
-    // Подсчёт общих часов и выплат
-    const { normalHours, overtimeHours } = calculateTotals();
-    const normalPay = normalHours * parseFloat(hourlyRate || 0);
-    const overtimePay = overtimeHours * (hourlyRate || 0) * overtimeMultiplier;
-    const totalPay = normalPay + overtimePay;
-  
-    // Подсчёт indemnity (если необходимо)
-    const uniqueDates = new Set(sortedWorkData.map(day => day.date));
-    const totalIndemnity = uniqueDates.size * (isNaN(indemnityRate) ? 0 : indemnityRate);
-    const grandTotalPay = totalPay + totalIndemnity;
-  
-    const heuresTotales = normalHours + overtimeHours;
-  
-    // Добавляем итоговые данные
-    yPosition += 10;
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 102, 204);
-    doc.text("Résumé des heures et paiement", 20, yPosition);
-    yPosition += 10;
-  
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Heures normales : ${normalHours.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Heures supplémentaires : ${overtimeHours.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Heures totales : ${heuresTotales.toFixed(2)} h`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Paiement heures normales : ${normalPay.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Paiement heures supplémentaires : ${overtimePay.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Indemnités d'entretien : ${totalIndemnity.toFixed(2)} €`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Total général : ${grandTotalPay.toFixed(2)} €`, 20, yPosition);
-  
-    // Сохраняем PDF
-    doc.save("rapport_heures_travail_professionnel.pdf");
-  };
   
   
 
@@ -335,7 +334,7 @@ const showNotification = (message, isError = false) => {
             onChange={handleEndTimeChange}
           />
         <label>
-       Taux horaire:
+       Taux horaire:</label>
         <input
           type="number"
           step="0.01"
@@ -343,9 +342,9 @@ const showNotification = (message, isError = false) => {
           onChange={handleRateChange}
          
         />
-        </label>
+        
          <label>
-         Indemnité d'entretien:
+         Indemnité d'entretien: </label>
         <input
           type="number"
           step="0.01"
@@ -354,18 +353,20 @@ const showNotification = (message, isError = false) => {
           
           
         />
-        </label>
-      <div className="weekLimit">
+       
+      
         <label>
-         Limite hebdomadaire:
+         Limite hebdomadaire:</label>
           <input
             type="number"
             value={weekLimit}
             onChange={handleWeekLimitChange}
           />
-        </label>
-      </div>
-        <button onClick={handleAddWorkDay}>
+        
+      
+        <button 
+        className='add-button'
+        onClick={handleAddWorkDay}>
          Ajouter une journée de travail
         </button>
         {notification.message && (
@@ -382,17 +383,19 @@ const showNotification = (message, isError = false) => {
         </button>
       </div>
       <div className="workHistory">
-        <h2>Historique des heures:</h2>
-        <ul>
-          {workData.map((day, index) => (
-            <li key={index}>
-              {`${day.date} - ${day.startTime} à ${day.endTime} - ${day.workedHours.toFixed(2)} h`}
+  <h2>Historique des heures:</h2>
+  <ul>
+    {[...workData]
+      .sort((a, b) => new Date(b.date) - new Date(a.date)) // сортировка от новой к старой
+      .map((day, index) => (
+        <li key={index}>
+          {`${new Date(day.date).toLocaleDateString('fr-FR')} - ${day.startTime} à ${day.endTime} - ${day.workedHours.toFixed(2)} h`}
               <button 
               className='butt-supp'
               onClick={() => handleDeleteWorkDay(index)}>
                 Supprimer
               </button>
-            </li>
+        </li>
           ))}
         </ul>
         <WorkCalendar workData={workData} />

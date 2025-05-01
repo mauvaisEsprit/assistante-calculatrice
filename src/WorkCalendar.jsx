@@ -16,11 +16,22 @@ const WorkCalendar = ({ workData }) => {
   const workedDates = new Set(workData.map(d => d.date)); // Уже в формате 'YYYY-MM-DD'
 
   const tileClassName = ({ date, view }) => {
-    if (view === 'month' && workedDates.has(toLocalDateString(date))) {
-      return 'work-day';
+    if (view !== 'month') return null;
+  
+    const classes = [];
+  
+    if (workedDates.has(toLocalDateString(date))) {
+      classes.push('work-day');
     }
-    return null;
+  
+    const dayOfWeek = date.getDay(); // 0 (воскресенье) - 6 (суббота)
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      classes.push('weekend-day');
+    }
+  
+    return classes;
   };
+  
 
   const selectedWorkDay = workData.find(
     d => selectedDate && d.date === toLocalDateString(selectedDate)
