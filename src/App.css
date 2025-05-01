@@ -283,14 +283,21 @@ button:hover {
 
 
 .notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
   padding: 10px 20px;
   font-family: "Space Grotesk", sans-serif;
-  margin: 10px auto;
   border-radius: 8px;
-  width: fit-content;
-  text-align: center;
   font-weight: bold;
-  animation: fadein 0.3s, fadeout 0.3s 2.7s;
+  text-align: center;
+  width: fit-content;
+  z-index: 9999;
+
+  animation: shake 0.4s, fadeout 0.3s 2.7s;
+  animation-fill-mode: forwards;
 }
 
 .notification.success {
@@ -303,9 +310,14 @@ button:hover {
   color: white;
 }
 
-@keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes shake {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  15% { transform: translate(-50%, -50%) rotate(2deg); }
+  30% { transform: translate(-50%, -50%) rotate(-2deg); }
+  45% { transform: translate(-50%, -50%) rotate(1.5deg); }
+  60% { transform: translate(-50%, -50%) rotate(-1.5deg); }
+  75% { transform: translate(-50%, -50%) rotate(1deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
 }
 
 @keyframes fadeout {
