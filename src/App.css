@@ -300,19 +300,19 @@ button:hover {
 .notification.success {
   background-color: #4caf50;
   color: white;
-  animation: popin 0.3s, fadeout 0.3s 2s;
+  animation: popin 0.3s, fadeout 0.3s 2.5s;
 }
 
 .notification.warning {
   background-color: orange;
   color: white;
-  animation: popin 0.3s, fadeout 0.3s 2s;
+  animation: popin 0.3s, fadeout 0.3s 2.5s;
 }
 
 .notification.error {
   background-color: #f44336;
   color: white;
-  animation: shake 0.4s, fadeout 0.3s 2s;
+  animation: shake 0.4s, fadeout 0.3s 2.5s;
 }
 
 @keyframes shake {

@@ -31,7 +31,7 @@ function App() {
 
   const [notification, setNotification] = useState({ message: '', isError: false });
 
-  const showNotification = (message, type = 'success', duration = 2000) => {
+  const showNotification = (message, type = 'success', duration = 2500) => {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
@@ -125,7 +125,7 @@ function App() {
   
       const existingDay = workData.find((entry) => entry.date === selectedDate);
       if (existingDay) {
-        showNotification("Ce jour existe déjà !", true);
+        showNotification("Ce jour existe déjà !", "error");
         return;
       }
   
@@ -140,7 +140,7 @@ function App() {
         workedHours
       }];
       setWorkData(newWorkData);
-      showNotification("Journée ajoutée avec succès !");
+      showNotification("Journée ajoutée avec succès !", "success");
     } else {
       showNotification("Veuillez remplir tous les champs.", "error");
     }
