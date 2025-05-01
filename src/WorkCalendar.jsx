@@ -53,7 +53,7 @@ const WorkCalendar = ({ workData }) => {
 
       {selectedWorkDay ? (
         <div className="work-info">
-          <h3>Détails du {selectedWorkDay.date}</h3>
+          <h3>Détails du {new Date(selectedWorkDay.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
           <p>Heure: {selectedWorkDay.startTime} à {selectedWorkDay.endTime}</p>
           <p>Durée: {selectedWorkDay.workedHours.toFixed(2)} h</p>
         </div>
