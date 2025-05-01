@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { jsPDF } from 'jspdf';
+import WorkCalendar from './WorkCalendar';
+import './WorkCalendar.css'; // Импортируем стили
 
 
 
@@ -163,7 +165,10 @@ const showNotification = (message, isError = false) => {
   };
 
   const generatePDF = () => {
-    const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sortedWorkData = useMemo(() => {
+      return [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    }, [workData]);
+    
     const doc = new jsPDF();
   
     doc.setFontSize(16);
@@ -184,7 +189,7 @@ const showNotification = (message, isError = false) => {
     });
   
     const { normalHours, overtimeHours } = calculateTotals();
-    const normalPay = normalHours * (hourlyRate || 0);
+    const normalPay = normalHours * (parseFloat(hourlyRate || 0));
     const overtimePay = overtimeHours * (hourlyRate || 0) * overtimeMultiplier;
     const totalPay = normalPay + overtimePay;
   
@@ -315,7 +320,7 @@ doc.save("rapport_heures_travail.pdf");
         </label>
       </div>
         <button onClick={handleAddWorkDay}>
-         Ajouter une journée de travail:
+         Ajouter une journée de travail
         </button>
         {notification.message && (
   <div className={`notification ${notification.isError ? 'error' : 'success'}`}>
@@ -336,12 +341,15 @@ doc.save("rapport_heures_travail.pdf");
           {workData.map((day, index) => (
             <li key={index}>
               {`${day.date} - ${day.startTime} à ${day.endTime} - ${day.workedHours.toFixed(2)} h`}
-              <button onClick={() => handleDeleteWorkDay(index)}>
+              <button 
+              className='butt-supp'
+              onClick={() => handleDeleteWorkDay(index)}>
                 Supprimer
               </button>
             </li>
           ))}
         </ul>
+        <WorkCalendar workData={workData} />
         <div className="totals">
   <h2>Total heures: {(
     calculateTotals().normalHours +
@@ -358,29 +366,19 @@ doc.save("rapport_heures_travail.pdf");
   <p>Indemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
 </div>
 
+
+
+
+
+
         <button 
         className='pdf-button'
         onClick={generatePDF}>
           Générer le PDF
         </button>
       </div>
-      
     </div>
   );
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

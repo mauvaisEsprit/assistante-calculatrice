@@ -97,9 +97,11 @@ button:hover {
   background-color: #4CAF50;
 }
 
-.clear-button {
+.butt-supp {
   background-color: #f44336;
-  margin-left: 10px;
+}
+.butt-supp:hover {
+  background-color: #cf3431;
 }
 
 .clear-history-button {
@@ -116,24 +118,11 @@ button:hover {
 }
 
 .clear-history-button:hover {
-  background-color: #e53935;
+  background-color: #cf3431;
 }
 
 .clear-history-button:active {
   background-color: #d32f2f;
-}
-
-.delete-button {
-  background-color: #f44336;
-  color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.delete-button:hover {
-  background-color: #e53935;
 }
 
 .normal-hours, .overtime-hours {
@@ -263,7 +252,7 @@ button:hover {
 .notification {
   padding: 10px 20px;
   margin: 10px auto;
-  border-radius: 5px;
+  border-radius: 8px;
   width: fit-content;
   text-align: center;
   font-weight: bold;

@@ -1,0 +1,112 @@
+.calendar-wrapper {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .calendar-wrapper h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+  }
+  
+  .react-calendar {
+    width: 100%;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .react-calendar__navigation {
+    background-color: #f0f0f0;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .react-calendar__navigation button {
+    color: #333;
+    background: none;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .react-calendar__navigation button:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .react-calendar__navigation button:hover {
+    background-color: #d1e8e2;
+  }
+  
+  .react-calendar__month-view__weekdays {
+    text-align: center;
+    font-weight: 600;
+    background-color: #fafafa;
+  }
+  
+  .react-calendar__tile {
+    padding: 20px 0;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .react-calendar__tile--now {
+    background: #ffeb3b;
+    color: #000;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+  
+  .react-calendar__tile--active {
+    background: #42a5f5 !important;
+    color: #fff !important;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+  
+  .work-day {
+    background-color: #66bb6a !important;
+    color: white !important;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  
+  .work-info {
+    margin-top: 30px;
+    background-color: #e8f5e9;
+    border-left: 8px solid #4caf50;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .react-calendar__navigation button {
+    font-size: 30px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .react-calendar__navigation button:hover {
+    background-color: #c5e1a5;
+  }
+  
