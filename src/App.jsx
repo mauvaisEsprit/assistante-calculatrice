@@ -126,14 +126,15 @@ const showNotification = (message, isError = false) => {
     }
   };
   
-  const handleDeleteWorkDay = (date) => {
+  const handleDeleteWorkDay = (indexToDelete) => {
     const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cette journée ?");
     if (confirmed) {
-      const newWorkData = workData.filter((entry) => entry.date !== date);
+      const newWorkData = workData.filter((_, index) => index !== indexToDelete);
       setWorkData(newWorkData);
       showNotification("Journée supprimée.");
     }
   };
+  
   
 
   const handleClearAll = () => {
