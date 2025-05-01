@@ -163,64 +163,110 @@ const showNotification = (message, isError = false) => {
       localStorage.clear();
     }
   };
-
   const generatePDF = () => {
-    const sortedWorkData = useMemo(() => {
-      return [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
-    }, [workData]);
-    
+    // Сортируем данные по дате
+    const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
+  
     const doc = new jsPDF();
   
-    doc.setFontSize(16);
-    doc.text("Heures de travail et salaire:" , 20, 20);
+    // Заголовок
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(0, 51, 102); // Цвет заголовка
+    doc.text("Rapport des heures de travail et salaire", 20, 20);
   
-    let yPosition = 30;
+    // Добавляем логотип (предположим, что логотип - это изображение в формате base64)
+    // doc.addImage('path/to/logo.png', 'PNG', 160, 10, 40, 40);
   
-    sortedWorkData.forEach(day => {
-      const timeFormat = `${day.startTime} à ${day.endTime}`;
-      const decimalFormat = `${day.workedHours.toFixed(2)} h`;
+    let yPosition = 40;
   
-      const hours = Math.floor(day.workedHours);
-      const minutes = Math.round((day.workedHours - hours) * 60);
-      const workedTimeFormatted = `${hours}h${minutes < 10 ? '0' + minutes : minutes}m/${day.workedHours.toFixed(2)} h`;
+    // Вставляем дату отчёта
+    const generatedDate = new Date().toLocaleDateString();
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`Date de génération : ${generatedDate}`, 20, yPosition);
+    yPosition += 10;
   
-      doc.text(`${day.date} - ${timeFormat} ${workedTimeFormatted}`, 20, yPosition);
+    // Записываем данные по каждому дню в виде таблицы
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0); // Основной цвет текста
+  
+    // Создаем таблицу
+    const tableHeader = ['Date', 'Heure de début', 'Heure de fin', 'Durée', 'Total (h)'];
+    const tableData = sortedWorkData.map(day => [
+      day.date,
+      day.startTime,
+      day.endTime,
+      `${day.startTime} à ${day.endTime}`,
+      day.workedHours.toFixed(2)
+    ]);
+  
+    const tableWidth = 180;
+    const columnWidths = [30, 40, 40, 40, 30]; // Ширина колонок
+  
+    // Добавляем таблицу заголовков
+    doc.setFillColor(0, 102, 204); // Цвет фона заголовков
+    doc.setTextColor(255, 255, 255); // Цвет текста заголовков
+    doc.setFontSize(12);
+    doc.rect(20, yPosition, tableWidth, 10, 'F'); // Рисуем фон для заголовков
+    tableHeader.forEach((header, index) => {
+      doc.text(header, 20 + columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 2, yPosition + 7);
+    });
+    yPosition += 10;
+  
+    // Добавляем данные таблицы
+    doc.setTextColor(0, 0, 0); // Цвет текста для данных
+    tableData.forEach(row => {
+      row.forEach((cell, index) => {
+        doc.text(cell, 20 + columnWidths.slice(0, index).reduce((a, b) => a + b, 0) + 2, yPosition + 7);
+      });
       yPosition += 10;
     });
   
+    // Добавляем разделитель после таблицы
+    doc.setDrawColor(0, 0, 0); // Цвет для линии
+    doc.line(20, yPosition, 200, yPosition); // Линия
+  
+    // Подсчёт общих часов и выплат
     const { normalHours, overtimeHours } = calculateTotals();
-    const normalPay = normalHours * (parseFloat(hourlyRate || 0));
+    const normalPay = normalHours * parseFloat(hourlyRate || 0);
     const overtimePay = overtimeHours * (hourlyRate || 0) * overtimeMultiplier;
     const totalPay = normalPay + overtimePay;
   
+    // Подсчёт indemnity (если необходимо)
     const uniqueDates = new Set(sortedWorkData.map(day => day.date));
     const totalIndemnity = uniqueDates.size * (isNaN(indemnityRate) ? 0 : indemnityRate);
     const grandTotalPay = totalPay + totalIndemnity;
   
     const heuresTotales = normalHours + overtimeHours;
   
+    // Добавляем итоговые данные
     yPosition += 10;
-doc.text('Heures normales : ' + normalHours.toFixed(2) + ' h', 20, yPosition);
-yPosition += 10;
-doc.text('Heures supplémentaires : ' + overtimeHours.toFixed(2) + ' h', 20, yPosition);
-yPosition += 10;
-doc.text('Heures totales : ' + heuresTotales.toFixed(2) + ' h', 20, yPosition);
-yPosition += 10;
-doc.text('Paiement heures normales : ' + normalPay.toFixed(2) + ' €', 20, yPosition);
-yPosition += 10;
-doc.text('Paiement heures supplémentaires : ' + overtimePay.toFixed(2) + ' €', 20, yPosition);
-yPosition += 10;
-doc.text('Indemnités d\'entretien : ' + totalIndemnity.toFixed(2) + ' €', 20, yPosition);
-yPosition += 10;
-doc.text('Total général : ' + grandTotalPay.toFixed(2) + ' €', 20, yPosition);
-
-const generatedDate = new Date().toLocaleDateString();
-yPosition += 10;
-doc.text('Date de génération du PDF : ' + generatedDate, 20, yPosition);
-
-doc.save("rapport_heures_travail.pdf");
-
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 102, 204);
+    doc.text("Résumé des heures et paiement", 20, yPosition);
+    yPosition += 10;
+  
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Heures normales : ${normalHours.toFixed(2)} h`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Heures supplémentaires : ${overtimeHours.toFixed(2)} h`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Heures totales : ${heuresTotales.toFixed(2)} h`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Paiement heures normales : ${normalPay.toFixed(2)} €`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Paiement heures supplémentaires : ${overtimePay.toFixed(2)} €`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Indemnités d'entretien : ${totalIndemnity.toFixed(2)} €`, 20, yPosition);
+    yPosition += 10;
+    doc.text(`Total général : ${grandTotalPay.toFixed(2)} €`, 20, yPosition);
+  
+    // Сохраняем PDF
+    doc.save("rapport_heures_travail_professionnel.pdf");
   };
+  
   
 
   const groupByWeeks = () => {
@@ -354,8 +400,8 @@ doc.save("rapport_heures_travail.pdf");
   <h2>Total heures: {(
     calculateTotals().normalHours +
     calculateTotals().overtimeHours).toFixed(2)} h</h2>
-  <p>normale: {calculateTotals().normalHours.toFixed(2)} h</p>
-  <p>supplémentaires: {calculateTotals().overtimeHours.toFixed(2)} h</p>
+  <p>Normales: {calculateTotals().normalHours.toFixed(2)} h</p>
+  <p>Supplémentaires: {calculateTotals().overtimeHours.toFixed(2)} h</p>
   <h2>Paye total: {(
     calculateTotals().normalHours * hourlyRate +
     calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier +
@@ -366,11 +412,7 @@ doc.save("rapport_heures_travail.pdf");
   <p>Indemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
 </div>
 
-
-
-
-
-
+      
         <button 
         className='pdf-button'
         onClick={generatePDF}>
