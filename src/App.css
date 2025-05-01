@@ -287,7 +287,6 @@ button:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  
   padding: 10px 20px;
   font-family: "Space Grotesk", sans-serif;
   border-radius: 8px;
@@ -295,19 +294,25 @@ button:hover {
   text-align: center;
   width: fit-content;
   z-index: 9999;
-
-  animation: shake 0.4s, fadeout 0.3s 2.7s;
   animation-fill-mode: forwards;
 }
 
 .notification.success {
   background-color: #4caf50;
   color: white;
+  animation: popin 0.3s, fadeout 0.3s 2s;
+}
+
+.notification.warning {
+  background-color: orange;
+  color: white;
+  animation: popin 0.3s, fadeout 0.3s 2s;
 }
 
 .notification.error {
   background-color: #f44336;
   color: white;
+  animation: shake 0.4s, fadeout 0.3s 2s;
 }
 
 @keyframes shake {
@@ -319,6 +324,12 @@ button:hover {
   75% { transform: translate(-50%, -50%) rotate(1deg); }
   100% { transform: translate(-50%, -50%) rotate(0deg); }
 }
+
+@keyframes popin {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 
 @keyframes fadeout {
   from { opacity: 1; }

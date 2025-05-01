@@ -31,12 +31,16 @@ function App() {
 
   const [notification, setNotification] = useState({ message: '', isError: false });
 
-const showNotification = (message, isError = false) => {
-  setNotification({ message, isError });
-  setTimeout(() => {
-    setNotification({ message: '', isError: false });
-  }, 3000);
-};
+  const showNotification = (message, type = 'success', duration = 2000) => {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+  
+    setTimeout(() => {
+      notification.remove();
+    }, duration);
+  };
 
 
   const overtimeMultiplier = 1.25;
@@ -147,7 +151,7 @@ const showNotification = (message, isError = false) => {
     if (confirmed) {
       const newWorkData = workData.filter((_, index) => index !== indexToDelete);
       setWorkData(newWorkData);
-      showNotification("Journée supprimée.");
+      showNotification("Journée supprimée.", "warning", 1500);
     }
   };
   
@@ -157,6 +161,7 @@ const showNotification = (message, isError = false) => {
     if (window.confirm('Êtes-vous sûr de vouloir tout effacer ?' )) {
       setWorkData([]);
       localStorage.clear();
+      showNotification("Historique supprimé.", "warning", 1500);
     }
   };
  const generatePDF = () => {
