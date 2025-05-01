@@ -59,7 +59,7 @@ const WorkCalendar = ({ workData }) => {
         </div>
       ) : selectedDate ? (
         <div className="work-info">
-          <h3>Aucune donnée pour le {selectedDate.toLocaleDateString('fr-FR')}</h3>
+          <h3>Aucune donnée pour le {new Date(selectedDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
         </div>
       ) : null}
     </div>
