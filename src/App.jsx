@@ -156,10 +156,6 @@ const showNotification = (message, isError = false) => {
   const handleClearAll = () => {
     if (window.confirm('Êtes-vous sûr de vouloir tout effacer ?' )) {
       setWorkData([]);
-      setSelectedDate('');
-      setStartTime('');
-      setEndTime('');
-      setHourlyRate('');
       localStorage.clear();
     }
   };
