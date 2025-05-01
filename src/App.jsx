@@ -21,7 +21,11 @@ function App() {
     return savedIndemnity ? parseFloat(savedIndemnity) : 3.75;  // Преобразуем в число
   });
  
-  const [weekLimit, setWeekLimit] = useState(45);
+  const [weekLimit, setWeekLimit] = useState(() => {
+    // При инициализации проверяем, есть ли сохранённое значение в localStorage
+    const savedLimit = localStorage.getItem('weekLimit');
+    return savedLimit ? parseFloat(savedLimit) : 45; // Если значение есть, используем его, иначе 45
+  });
 
   const [notification, setNotification] = useState({ message: '', isError: false });
 
@@ -44,7 +48,10 @@ const showNotification = (message, isError = false) => {
     value = value.replace(',', '.');
   
     // Проверяем, что введено корректное число
-    if (value === '' || !isNaN(value)) {
+    if (
+      value === '' || 
+      (/^\d*\.?\d{0,2}$/.test(value) && !isNaN(value))
+    ) {
       setIndemnityRate(value); // Сохраняем введенное значение как строку
     }
   };
@@ -67,19 +74,26 @@ const showNotification = (message, isError = false) => {
   const handleStartTimeChange = (e) => setStartTime(e.target.value);
   const handleEndTimeChange = (e) => setEndTime(e.target.value);
   const handleRateChange = (e) => {
-    let value = e.target.value;
+    let value = e.target.value.replace(',', '.');
   
-    // Заменяем запятую на точку
-    value = value.replace(',', '.');
-  
-    // Проверяем, что введено корректное число
-    if (value === '' || !isNaN(value)) {
-      setHourlyRate(value); // Сохраняем введенное значение как строку
+    // Разрешаем пустое значение или число с максимум двумя знаками после точки
+    if (
+      value === '' ||
+      (/^\d*\.?\d{0,2}$/.test(value) && !isNaN(value))
+    ) {
+      setHourlyRate(value);
     }
   };
   
-  const handleLanguageChange = (e) => setLanguage(e.target.value);
-  const handleWeekLimitChange = (e) => setWeekLimit(parseFloat(e.target.value)); // Преобразуем в число
+  
+
+  const handleWeekLimitChange = (e) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      setWeekLimit(value);
+      localStorage.setItem('weekLimit', value); // Сохраняем новое значение в localStorage
+    }
+  };
 
   const roundToQuarterHour = (time) => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -329,17 +343,19 @@ doc.save("rapport_heures_travail.pdf");
           ))}
         </ul>
         <div className="totals">
-  <h2>Total heures:</h2>
+  <h2>Total heures: {(
+    calculateTotals().normalHours +
+    calculateTotals().overtimeHours).toFixed(2)} h</h2>
   <p>normale: {calculateTotals().normalHours.toFixed(2)} h</p>
   <p>supplémentaires: {calculateTotals().overtimeHours.toFixed(2)} h</p>
-  <p>Paye normale: {(calculateTotals().normalHours * hourlyRate).toFixed(2)} €</p>
-  <p>Paye supp: {(calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier).toFixed(2)} €</p>
-  <p>Indemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
-  <p>Paye total: {(
+  <h2>Paye total: {(
     calculateTotals().normalHours * hourlyRate +
     calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier +
     new Set(workData.map(d => d.date)).size * indemnityRate
-  ).toFixed(2)} €</p>
+  ).toFixed(2)} €</h2>
+  <p>Paye normale: {(calculateTotals().normalHours * hourlyRate).toFixed(2)} €</p>
+  <p>Paye supp: {(calculateTotals().overtimeHours * hourlyRate * overtimeMultiplier).toFixed(2)} €</p>
+  <p>Indemnité d'entretien: {(new Set(workData.map(d => d.date)).size * indemnityRate).toFixed(2)} €</p>
 </div>
 
         <button 
