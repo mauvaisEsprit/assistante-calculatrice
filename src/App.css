@@ -258,3 +258,34 @@ button:hover {
 .pdf-button:active {
   background-color: #1565C0;
 }
+
+
+.notification {
+  padding: 10px 20px;
+  margin: 10px auto;
+  border-radius: 5px;
+  width: fit-content;
+  text-align: center;
+  font-weight: bold;
+  animation: fadein 0.3s, fadeout 0.3s 2.7s;
+}
+
+.notification.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.notification.error {
+  background-color: #f44336;
+  color: white;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

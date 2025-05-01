@@ -23,6 +23,16 @@ function App() {
  
   const [weekLimit, setWeekLimit] = useState(45);
 
+  const [notification, setNotification] = useState({ message: '', isError: false });
+
+const showNotification = (message, isError = false) => {
+  setNotification({ message, isError });
+  setTimeout(() => {
+    setNotification({ message: '', isError: false });
+  }, 3000);
+};
+
+
   const overtimeMultiplier = 1.25;
 
 
@@ -84,25 +94,38 @@ function App() {
     if (selectedDate && startTime && endTime) {
       const roundedStartTime = roundToQuarterHour(startTime);
       const roundedEndTime = roundToQuarterHour(endTime);
-
+  
       const startDateTime = new Date(`${selectedDate}T${roundedStartTime}`);
       const endDateTime = new Date(`${selectedDate}T${roundedEndTime}`);
-
+  
       if (endDateTime <= startDateTime) {
-        alert("L'heure de fin ne peut pas être avant l'heure de début !");
+        showNotification("L'heure de fin ne peut pas être avant l'heure de début !", true);
         return;
       }
-
+  
+      const existingDay = workData.find((entry) => entry.date === selectedDate);
+      if (existingDay) {
+        showNotification("Ce jour existe déjà !", true);
+        return;
+      }
+  
       const diffInMilliseconds = endDateTime - startDateTime;
       let workedHours = diffInMilliseconds / (1000 * 60 * 60);
       workedHours = Math.round(workedHours / 0.25) * 0.25;
-
-      const newWorkData = [...workData, { date: selectedDate, startTime: roundedStartTime, endTime: roundedEndTime, workedHours }];
+  
+      const newWorkData = [...workData, {
+        date: selectedDate,
+        startTime: roundedStartTime,
+        endTime: roundedEndTime,
+        workedHours
+      }];
       setWorkData(newWorkData);
+      showNotification("Journée ajoutée avec succès !");
     } else {
-      alert( 'Veuillez remplir tous les champs.');
+      showNotification("Veuillez remplir tous les champs.", true);
     }
   };
+  
 
   const handleDeleteWorkDay = (index) => {
     const newWorkData = workData.filter((_, i) => i !== index);
@@ -275,6 +298,12 @@ doc.save("rapport_heures_travail.pdf");
         <button onClick={handleAddWorkDay}>
          Ajouter une journée de travail:
         </button>
+        {notification.message && (
+  <div className={`notification ${notification.isError ? 'error' : 'success'}`}>
+    {notification.message}
+  </div>
+)}
+
 
         <button
         className='clear-history-button' 
