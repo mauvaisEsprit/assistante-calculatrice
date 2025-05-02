@@ -164,7 +164,10 @@ function App() {
       showNotification("Historique supprimé.", "warning", 1500);
     }
   };
- const generatePDF = () => {
+
+
+  /*  ----- Генерация PDF -----  */
+ const generatePDF = async () => {
   const sortedWorkData = [...workData].sort((a, b) => new Date(a.date) - new Date(b.date));
   const doc = new jsPDF();
 
@@ -262,7 +265,28 @@ function App() {
   doc.text(`Total général : ${grandTotalPay.toFixed(2)} €`, 20, yPosition);
 
   // Сохранение
-  doc.save("rapport_heures_travail.pdf");
+  const blob = doc.output("blob");
+
+  if (navigator.canShare && navigator.canShare({ files: [new File([blob], "rapport.pdf", { type: "application/pdf" })] })) {
+    try {
+      await navigator.share({
+        title: "Rapport de travail",
+        text: "Voici le récapitulatif PDF.",
+        files: [new File([blob], "rapport.pdf", { type: "application/pdf" })]
+      });
+    } catch (error) {
+      console.error("Erreur lors du partage :", error);
+    }
+  } else {
+    // Если share недоступен — fallback: скачать PDF
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "rapport_heures_travail.pdf";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
 };
 
   
