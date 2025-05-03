@@ -3,7 +3,7 @@ import './App.css';
 import { jsPDF } from 'jspdf';
 import WorkCalendar from './WorkCalendar';
 import './WorkCalendar.css'; // Импортируем стили
-
+import Footer from './Footer';
 
 
 function App() {
@@ -446,6 +446,7 @@ function App() {
         onClick={generatePDF}>
           Générer le PDF
         </button>
+        <Footer/>
       </div>
     </div>
   );
